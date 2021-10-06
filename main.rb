@@ -15,6 +15,7 @@ class Game
     @@winner = ''
     while @@round <= 9
       until @@win
+        puts "Round #{@@round}\n\n"
         if @@turn == 1
           @board.display
           check_selection(@player1)
@@ -35,6 +36,11 @@ class Game
           @@turn = 1
           @@round += 1
           system 'clear'
+        end
+
+        if @@round == 10 && !@win
+          puts "Sorry no winner!\n\n"
+          play_again
         end
       end
       @@round = 10
