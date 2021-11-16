@@ -3,6 +3,10 @@
     attr_accessor :symbol
 
     def initialize(player)
+      create_player(player)
+    end
+
+    def create_player(player)
       puts "Enter you name, #{player}: "
       @name = gets.chomp
       @symbol = ''

@@ -1,62 +1,71 @@
+require './lib/display'
+
 class Game
+
+attr_reader :board, :player1, :player2
+
+include Display
+
   def initialize
+    start_game
+  end
+
+  def start_game
     @player1 = Player.new('player 1')
     @player2 = Player.new('player 2')
     @board = Board.new
-		system 'clear'
-		play_game
+		cls
+    start_round
+  end
+
+  def start_round
+    @@turn = 1
+    @round = 1
+    @@win = false
+    @@winner = ''
+    play_game
   end
 
   def play_game
-    @@turn = 1
-    @@round = 1
-    @@win = false
-    @@winner = ''
-    while @@round <= 9
-      until @@win
-        puts "Round #{@@round}\n\n"
-        if @@turn == 1
-          @board.display
-          check_selection(@player1)
-          if check_winner?(@player1)
-            @@win = true
-            @@winner = @player1.name
-          end
-          @@turn = 2
-          @@round += 1
-          system 'clear'
-        else
-          @board.display
-          check_selection(@player2)
-          if check_winner?(@player2)
-            @@win = true
-            @@winner = @player2.name
-          end
-          @@turn = 1
-          @@round += 1
-          system 'clear'
-        end
-
-        if @@round == 10 && !@win
-          puts "Sorry no winner!\n\n"
-          play_again
-        end
-      end
-      @@round = 10
-      puts "#{@@winner} is the winner!\n\n"
+    until @@win || @round == 10
+      display_round
+      @@turn == 1 ? play_round(@player1) : play_round(@player2)
+      @@turn = switch_turn
+      round_up
+      cls
     end
+    round_ten
+  end
+
+  def switch_turn
+    @@turn == 1 ? @@turn = 2 : @@turn = 1
+  end
+
+  def round_up
+    @round += 1
+  end
+
+  def play_round(player)
+    display_grid(@board)
+    check_selection(player)
+    @@win = true if check_winner?(player)
+    @@winner = player.name if @@win
+  end
+  
+  def round_ten
+    display_winner(@@winner, @@win)
     play_again
   end
 
   def play_again
     @again = ''
-    @board.display
+    display_grid(@board)
     until %w[y n Y N].include?(@again)
       puts "\nWould you like to play again? Y/N"
       @again = gets.chomp
       if @again =~ /^(Y|y)$/
         reset
-        play_game
+        start_round
       elsif @again =~ /^(N|n)$/
         abort('Thanks for playing!')
       else
@@ -80,10 +89,8 @@ class Game
   end
 
   def reset
-    @@round = 1
-    @@turn = 1
     @selection = ''
-    system 'clear'
+    cls
     @board.grid = [1, 2, 3, 4, 5, 6, 7, 8, 9]
   end
 end
